@@ -4,4 +4,4 @@ evm = EVM(env=REnv())
 
 print(dir(evm.transact()))
 
-print(evm.transact()[0])
+print(evm.transact())
