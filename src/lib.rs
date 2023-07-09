@@ -1,29 +1,26 @@
+use db::DB;
 use pyo3::prelude::*;
-use revm::{EVM as REVM, DummyStateDB, db::EmptyDB};
-use types::{evm_env::*, evm_result::RSS};
+use revm::{EVM as REVM, db::{CacheDB, EmptyDB}};
+use types::{evm_env::*, evm_result::RSS, database::Database, account::{RAccountInfo, RDbAccount}};
 
 #[pyclass]
-struct EVM(REVM<DummyStateDB>);
-
-impl EVM {
-    pub fn database(&mut self) {
-        self.0.database(DummyStateDB::new(EmptyDB()));
-    }
-}
+struct EVM(REVM<CacheDB<EmptyDB>>);
 
 #[pymethods]
 impl EVM {
     #[new]
-    fn new(env: REnv) -> PyResult<EVM> {
-        let mut evm = EVM(REVM::with_env(env.into()));
-
-        evm.database();
+    fn new() -> PyResult<EVM> {
+        let evm = EVM(REVM::new());
         
         Ok(evm)
     }
 
-    fn transact(mut _self: PyRefMut<'_, Self>) -> PyResult<RSS> {
-        Ok(RSS(_self.0.transact().unwrap()))
+    fn database(&mut self, db: Database) {
+        self.0.database(db.into())
+    }
+
+    fn transact_ref(&mut self) -> PyResult<RSS> {
+        Ok(RSS(self.0.transact_ref().unwrap()))
     }
 }
 
@@ -36,8 +33,14 @@ fn py_revm(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<RTxEnv>()?;
     m.add_class::<RBlockEnv>()?;
     m.add_class::<RSS>()?;
+    m.add_class::<Database>()?;
+    m.add_class::<RAccountInfo>()?;
+    m.add_class::<RDbAccount>()?;
+    m.add_class::<DB>()?;
 
     Ok(())
 }
 
 pub mod types;
+pub mod utils;
+pub mod db;

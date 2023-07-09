@@ -9,5 +9,9 @@ name = "py_revm"
 crate-type = ["cdylib"]
 
 [dependencies]
+ethers-core = "2.0.7"
+ethers-providers = "2.0.7"
 pyo3 = "0.19.0"
-revm = "3.3.0"
+revm = { version = "3.3.0", features = ["serde", "ethersdb"] }
+ruint = "1.8.0"
+serde_json = "1.0.100"
