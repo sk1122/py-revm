@@ -5,3 +5,7 @@ pub fn addr(addr: &str) -> Result<B160, PyErr> {
     addr.parse::<B160>()
         .map_err(|err| PyTypeError::new_err(err.to_string()))
 }
+
+pub fn from_addr(addr: &B160) -> String {
+    addr.to_string()
+}

@@ -1,5 +1,9 @@
 use pyo3::prelude::*;
-use revm::primitives::{Env, CfgEnv, BlockEnv, TxEnv};
+use revm::primitives::{Env, CfgEnv, BlockEnv, TxEnv, Bytes};
+use ruint::aliases::U256;
+use serde_json::de;
+
+use crate::utils::addr::addr;
 
 #[pyclass]
 #[derive(Debug, Default, Clone)]
@@ -70,6 +74,24 @@ impl RTxEnv {
     #[new]
     fn new() -> Self {
         RTxEnv(TxEnv::default())
+    }
+
+    #[staticmethod]
+    fn new_call(caller: &str, transact_to: &str, data: String, value: u128) -> Self {
+        RTxEnv(
+            TxEnv { 
+                caller: addr(caller).unwrap(), 
+                gas_limit: 18446744073709551615, 
+                gas_price: U256::from(0), 
+                gas_priority_fee: None, 
+                transact_to: revm::primitives::TransactTo::Call(addr(transact_to).unwrap()), 
+                value: U256::from(value), 
+                data: Bytes::from(hex::decode(hex::encode(Bytes::from(data.clone()))).unwrap()), 
+                chain_id: None, 
+                nonce: None, 
+                access_list: vec![] 
+            }
+        )
     }
 
     fn __str__(&self) -> PyResult<String> {

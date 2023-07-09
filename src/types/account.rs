@@ -54,7 +54,6 @@ impl RAccountInfo {
             })
             .map(|bytes| Bytecode::new_raw(bytes.into()));
 
-println!("dsa");
         Ok(RAccountInfo(AccountInfo {
             balance: U256::from(balance.unwrap_or_default()),
             code_hash,

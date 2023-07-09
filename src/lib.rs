@@ -19,8 +19,12 @@ impl EVM {
         self.0.database(db.into())
     }
 
-    fn transact_ref(&mut self) -> PyResult<RSS> {
+    fn transact_ref(&self) -> PyResult<RSS> {       
         Ok(RSS(self.0.transact_ref().unwrap()))
+    }
+
+    fn set_env(&mut self, env: REnv) {
+        self.0.env = env.into();
     }
 }
 

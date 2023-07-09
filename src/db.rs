@@ -23,6 +23,7 @@ impl DB {
         let provider = Provider::<Http>::try_from(client_url).unwrap();
         let provider = Arc::new(provider);
 
+        println!("block {:?}", block);
         let ethersdb = EthersDB::new(Arc::clone(&provider), block).unwrap();
 
         DB(ethersdb)

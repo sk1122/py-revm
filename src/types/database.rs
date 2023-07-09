@@ -1,8 +1,10 @@
+use std::str::FromStr;
+
 use revm::{db::CacheDB, db::{EmptyDB, DbAccount}, primitives::AccountInfo};
 use pyo3::prelude::*;
 use ruint::aliases::U256;
 
-use crate::utils::addr::addr;
+use crate::utils::addr::{addr, from_addr};
 
 use super::account::{RAccountInfo, RDbAccount};
 
@@ -18,17 +20,16 @@ impl Database {
     }
 
     fn insert_account_info(&mut self, address: &str, info: RAccountInfo) {
-        // self.0.insert_account_info(addr(address).unwrap(), serde_json::from_str(string.as_str()).unwrap())
         self.0.insert_account_info(addr(address).unwrap(), info.into())
     }
 
-    fn insert_account_storage(&mut self, address: &str, slot: u128, value: u128) {
-        self.0.insert_account_storage(addr(address).unwrap(), U256::from(slot), U256::from(value)).unwrap()
+    fn insert_account_storage(&mut self, address: &str, slot: u128, value: &str) {
+        self.0.insert_account_storage(addr(address).unwrap(), U256::from(slot), U256::from_str(value).unwrap()).unwrap()
     }
 
     #[getter]
-    fn accounts(&self) -> PyResult<Vec<([u8; 20], RDbAccount)>> {
-        let accounts = self.0.accounts.iter().map(|(k, v)| (k.0, v.into())).collect::<Vec<([u8; 20], RDbAccount)>>();
+    fn accounts(&self) -> PyResult<Vec<(String, RDbAccount)>> {
+        let accounts = self.0.accounts.iter().map(|(k, v)| (from_addr(k), v.into())).collect::<Vec<(String, RDbAccount)>>();
         
         Ok(accounts)
     }
